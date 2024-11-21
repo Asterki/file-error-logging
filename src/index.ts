@@ -5,13 +5,18 @@ import path from "path";
 class Logger {
   private static instance: Logger;
   private logsDir: string;
+  private logFiles: { [key: string]: string } = {
+    info: "info.txt",
+    warn: "warn.txt",
+    error: "error.txt",
+  };
 
   private constructor() {
-    this.logsDir = path.resolve(process.cwd(), "logs"); // Use process.cwd() for cross-environment compatibility
+    this.logsDir = path.resolve(process.cwd(), "logs");
     fsExtra.ensureDirSync(this.logsDir);
-    fsExtra.ensureFileSync(path.join(this.logsDir, "info.txt"));
-    fsExtra.ensureFileSync(path.join(this.logsDir, "warn.txt"));
-    fsExtra.ensureFileSync(path.join(this.logsDir, "error.txt"));
+    Object.values(this.logFiles).forEach(file =>
+      fsExtra.ensureFileSync(path.join(this.logsDir, file))
+    );
   }
 
   public static getInstance(): Logger {
@@ -19,37 +24,28 @@ class Logger {
     return Logger.instance;
   }
 
-  public info(message: string, logToFile: boolean = false) {
-    console.log(`${chalk.blue("[INFO]")} ${message}`);
+  private log(level: "info" | "warn" | "error", message: string, logToFile: boolean) {
+    const color = { info: chalk.blue, warn: chalk.yellow, error: chalk.red }[level];
+    console.log(`${color(`[${level.toUpperCase()}]`)} ${message}`);
 
     if (logToFile) {
       fsExtra.appendFileSync(
-        path.join(this.logsDir, "info.txt"),
-        `[INFO] ${message}\n`
+        path.join(this.logsDir, this.logFiles[level]),
+        `[${level.toUpperCase()}] ${message}\n`
       );
     }
+  }
+
+  public info(message: string, logToFile: boolean = false) {
+    this.log("info", message, logToFile);
   }
 
   public warn(message: string, logToFile: boolean = false) {
-    console.log(`${chalk.yellow("[WARN]")} ${message}`);
-
-    if (logToFile) {
-      fsExtra.appendFileSync(
-        path.join(this.logsDir, "warn.txt"),
-        `[WARN] ${message}\n`
-      );
-    }
+    this.log("warn", message, logToFile);
   }
 
   public error(message: string, logToFile: boolean = false) {
-    console.log(`${chalk.red("[ERROR]")} ${message}`);
-
-    if (logToFile) {
-      fsExtra.appendFileSync(
-        path.join(this.logsDir, "error.txt"),
-        `[ERROR] ${message}\n`
-      );
-    }
+    this.log("error", message, logToFile);
   }
 }
 
