@@ -1,0 +1,33 @@
+{
+  "name": "file-error-logging",
+  "version": "1.0.0",
+  "description": "Log your errors directly to the console and to a .log file",
+  "main": "./src/index.ts",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Asterki/file-error-logging.git"
+  },
+  "keywords": [
+    "log",
+    "typescript",
+    "log-to-file"
+  ],
+  "author": "Asterki",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/Asterki/file-error-logging/issues"
+  },
+  "homepage": "https://github.com/Asterki/file-error-logging#readme",
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.9.1",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "fs-extra": "^11.2.0"
+  }
+}
