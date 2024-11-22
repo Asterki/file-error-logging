@@ -16,34 +16,34 @@ class Logger {
   private levels: {
     [key in LogLevel]: {
       color: typeof Color;
-      includeTimestamp: boolean;
+      includeTimestampInConsole: boolean;
       defaultLogToFile: boolean;
-      logFile?: string;
+      logFileName?: string;
     };
   } = {
     info: {
       color: "blue",
-      includeTimestamp: false,
+      includeTimestampInConsole: false,
       defaultLogToFile: true,
-      logFile: "info.log",
+      logFileName: "info.log",
     },
     warn: {
       color: "yellowBright",
-      includeTimestamp: false,
+      includeTimestampInConsole: false,
       defaultLogToFile: true,
-      logFile: "warn.log",
+      logFileName: "warn.log",
     },
     error: {
       color: "redBright",
-      includeTimestamp: false,
+      includeTimestampInConsole: false,
       defaultLogToFile: true,
-      logFile: "error.log",
+      logFileName: "error.log",
     },
     verb: {
       color: "gray",
-      includeTimestamp: false,
+      includeTimestampInConsole: false,
       defaultLogToFile: true,
-      logFile: "verbose.log",
+      logFileName: "verbose.log",
     },
   };
 
@@ -55,11 +55,25 @@ class Logger {
     this.chalkInstance = new chalk.Instance();
     fsExtra.ensureDirSync(this.logsDir);
     Object.keys(this.levels).forEach((level) => {
-      const { logFile } = this.levels[level as LogLevel];
-      if (logFile) {
-        fsExtra.ensureFileSync(path.resolve(this.logsDir, logFile));
+      // @ts-ignore
+      const { logFileName } = this.levels[level];
+      if (logFileName) {
+        fsExtra.ensureFileSync(path.resolve(this.logsDir, logFileName));
       }
     });
+  }
+
+  /**
+   * Private method to format dates
+   */
+  private formatTimestamp(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-based
+    const day = date.getDate().toString().padStart(2, "0");
+    return `${hours}:${minutes}:${seconds} - ${year}/${month}/${day}`;
   }
 
   /**
@@ -81,33 +95,41 @@ class Logger {
    * @param {string} [params.logFile] - The file to log to, if applicable.
    * @throws {Error} If the log level already exists.
    */
-  public addLogLevel = ({
-    level,
-    color,
-    includeTimestamp,
-    logToFile,
-    logFile,
-  }: {
-    level: LogLevel;
-    color: typeof Color;
-    includeTimestamp: boolean;
-    logToFile: boolean;
-    logFile?: string;
-  }) => {
-    if (this.levels[level])
-      throw new Error(`Log level: "${level}" already exists.`);
-
-    this.levels[level] = {
+  public addLogLevel = (
+    name: string,
+    {
       color,
-      includeTimestamp,
+      includeTimestampInConsole,
+      logToFile,
+      logFileName,
+    }: {
+      color: typeof Color;
+      includeTimestampInConsole: boolean;
+      logToFile: boolean;
+      logFileName?: string;
+    }
+  ) => {
+    // @ts-ignore
+    if (this.levels[name])
+      throw new Error(`Log level: "${name}" already exists.`);
+
+    // @ts-ignore
+    this.levels[name] = {
+      color,
+      includeTimestampInConsole: includeTimestampInConsole,
       defaultLogToFile: logToFile,
-      logFile,
+      logFileName: logFileName,
     };
+
+    // Create the log file if it doesn't exist
+    if (logFileName) {
+      fsExtra.ensureFileSync(path.resolve(this.logsDir, logFileName));
+    }
   };
 
   /**
    * Log a message at a specified log level.
-   * @param {LogLevel} level - The log level to use.
+   * @param {string} level - The log level to use.
    * @param {string} message - The message to log.
    * @param {Object} [optionsOverride] - Optional overrides for the log options.
    * @param {boolean} [optionsOverride.includeTimestamp] - Whether to include a timestamp in the log.
@@ -115,38 +137,75 @@ class Logger {
    * @param {string} [optionsOverride.color] - The color to use for the log message.
    */
   public log = (
-    level: LogLevel,
+    level: string,
     message: string,
     optionsOverride: {
-      includeTimestamp?: boolean;
+      includeTimestampInConsole?: boolean;
       logToFile?: boolean;
       color?: typeof Color;
     } = {}
   ): void => {
     try {
+      // @ts-ignore
       const levelOptions = this.levels[level] || {};
       const options = { ...levelOptions, ...optionsOverride };
 
+      const now = new Date();
       const logMessage = `${
-        options.includeTimestamp ? new Date().toISOString() : ""
+        options.includeTimestampInConsole ? this.formatTimestamp(now) : ""
       } ${message}`;
 
       // Log to the console
-      console.log(`[${chalk[options.color || levelOptions.color](level.toUpperCase())}] - ${logMessage}`);
+      console.log(
+        // @ts-ignore
+        `[${chalk[options.color || levelOptions.color](
+          level.toUpperCase()
+        )}] - ${logMessage}`
+      );
 
       // Log to the file
       if (options.logToFile || levelOptions.defaultLogToFile) {
-        const logFile = path.resolve(this.logsDir, options.logFile || "");
-        fsExtra.appendFileSync(logFile, `${logMessage}\n`);
+        const logFile = path.resolve(this.logsDir, options.logFileName || "");
+        fsExtra.appendFileSync(
+          logFile,
+          `${now.toISOString()} - ${message} \n`
+        ); // Date will always be included in the file
       }
     } catch (error) {
       if (error instanceof TypeError) {
         console.error(`Log level: "${level}" is not defined.`, error.message);
       } else {
+        console.log(error)
         throw error; // Re-throw the error if it's not the expected type
       }
     }
   };
+
+  // Legacy methods
+  public info = (
+    message: string,
+    optionsOverride: {
+      includeTimestampInConsole?: boolean;
+      logToFile?: boolean;
+      color?: typeof Color;
+    } = {}
+  ) => this.log("info", message, optionsOverride);
+  public warn = (
+    message: string,
+    optionsOverride: {
+      includeTimestampInConsole?: boolean;
+      logToFile?: boolean;
+      color?: typeof Color;
+    } = {}
+  ) => this.log("warn", message, optionsOverride);
+  public error = (
+    message: string,
+    optionsOverride: {
+      includeTimestampInConsole?: boolean;
+      logToFile?: boolean;
+      color?: typeof Color;
+    } = {}
+  ) => this.log("error", message, optionsOverride);
 }
 
 type LogLevel = "info" | "warn" | "error" | "verb";

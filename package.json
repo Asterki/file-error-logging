@@ -1,6 +1,6 @@
 {
   "name": "file-error-logging",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Log your errors directly to the console and to a .log file",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
