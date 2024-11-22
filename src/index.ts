@@ -40,7 +40,7 @@ class Logger {
       defaultLogToFile: true,
       logFileName: "error.log",
     },
-    verb: {
+    verbose: {
       color: "gray",
       includeTimestampInConsole: false,
       defaultLogToFile: true,
@@ -247,6 +247,6 @@ class Logger {
   ) => this.log("error", message, optionsOverride);
 }
 
-type LogLevel = "info" | "warn" | "error" | "verb";
+type LogLevel = "info" | "warn" | "error" | "verbose";
 
 export default Logger.getInstance();
