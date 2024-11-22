@@ -1,18 +1,19 @@
-# File Error Logging
+# file-error-logging
 
-A simple, lightweight, and customizable logging library for Node.js, built with TypeScript. Automatically logs messages to the console and files, with optional color-coded output.
+A lightweight, flexible logging library for Node.js applications. This library provides an intuitive API for managing log levels, formatting logs, and writing logs to files. It includes a Singleton-based Logger class with out-of-the-box support for logging `info`, `warn`, `error`, and `verbose` levels. 
+
+Future updates will introduce **log rotation**, **custom log levels**, and a **CLI** for easier configuration and use.
 
 ## Features
 
-- **Singleton Pattern**: Ensures a single logging instance across your application.
-- **Log Levels**: Supports `info`, `warn`, and `error` log levels.
-- **File Logging**: Optionally writes logs to files.
-- **Color-Coded Console Output**: Uses `chalk` for beautiful, readable logs.
-- **Automatic File Management**: Creates and manages log files automatically.
+- **Default Log Levels**: `info`, `warn`, `error`, `verb` (verbose).
+- **File-based Logging**: Logs are written to individual files for each log level.
+- **Dynamic Configuration**: Add custom log levels with their own color, timestamping, and file logging rules.
+- **Singleton Pattern**: Ensures a single instance of the logger throughout the application.
 
 ## Installation
 
-Install the package via npm:
+To install the package, use npm:
 
 ```bash
 npm install file-error-logging
@@ -20,92 +21,91 @@ npm install file-error-logging
 
 ## Usage
 
-Import the logger and start logging:
+### Basic Example
 
-### Basic Logging
+```typescript
+import Logger from "file-error-logging";
 
-```javascript
-import Logger from 'logger-pro';
+// Log an informational message
+Logger.log("info", "This is an informational message.");
 
-Logger.info('This is an info message');
-Logger.warn('This is a warning message');
-Logger.error('This is an error message');
+// Log a warning message
+Logger.log("warn", "This is a warning message.");
+
+// Log an error
+Logger.log("error", "This is an error message.");
+
+// Log a verbose/debug message
+Logger.log("verb", "This is a verbose message.");
 ```
 
-### Log to Files
+### Adding a Custom Log Level
 
-Enable file logging by setting the `logToFile` parameter to `true`:
+```typescript
+Logger.addLogLevel({
+  level: "custom",
+  color: "magenta",
+  includeTimestamp: true,
+  logToFile: true,
+  logFile: "custom.log",
+});
 
-```javascript
-Logger.info('This will also be written to the log file', true);
-Logger.warn('This warning is logged to the file', true);
-Logger.error('This error is logged to the file', true);
+// Use the custom log level
+Logger.log("custom", "This is a custom log message.");
 ```
 
-### File Location
+### Overriding Default Options
 
-By default, logs are saved in a `logs` directory at the root of your project:
-- `logs/info.txt`
-- `logs/warn.txt`
-- `logs/error.txt`
+You can override log level configurations on a per-message basis.
 
-### Custom Log Directory
-
-The library uses the current working directory (`process.cwd()`) to determine where to create the `logs` folder. Ensure your application has write permissions.
-
-## Configuration
-
-This library currently uses default settings for simplicity. Future versions will allow configuration for:
-- Custom log file paths
-- Log rotation
-- Log level filtering
-
-## API
-
-### `Logger.info(message: string, logToFile: boolean = false)`
-Logs an informational message to the console (blue text) and optionally to `info.txt`.
-
-### `Logger.warn(message: string, logToFile: boolean = false)`
-Logs a warning message to the console (yellow text) and optionally to `warn.txt`.
-
-### `Logger.error(message: string, logToFile: boolean = false)`
-Logs an error message to the console (red text) and optionally to `error.txt`.
-
-## Example
-
-Here’s a complete example in an Express.js application:
-
-```javascript
-import express from 'express';
-import Logger from 'logger-pro';
-
-const app = express();
-
-app.get('/', (req, res) => {
-  Logger.info('Received a GET request at /');
-  res.send('Hello, World!');
-});
-
-app.get('/error', (req, res) => {
-  Logger.error('Simulated error occurred', true);
-  res.status(500).send('Something went wrong');
-});
-
-app.listen(3000, () => {
-  Logger.info('Server is running on port 3000', true);
+```typescript
+Logger.log("info", "Custom timestamp and color", {
+  includeTimestamp: true,
+  color: "green",
 });
 ```
 
-## Dependencies
+### Logs Directory
 
-- [chalk](https://www.npmjs.com/package/chalk) for color-coded console logs.
-- [fs-extra](https://www.npmjs.com/package/fs-extra) for file management.
+By default, logs are stored in the `logs` directory at the root of your project. Ensure your application has the necessary permissions to create and write to this directory.
+
+## API Reference
+
+### Methods
+
+#### `Logger.getInstance()`
+Returns the singleton instance of the logger.
+
+#### `Logger.log(level: LogLevel, message: string, options?: Object)`
+Logs a message at the specified log level.
+
+- `level`: The log level (`info`, `warn`, `error`, `verb`, or custom).
+- `message`: The message to log.
+- `options`: Optional overrides for `includeTimestamp`, `logToFile`, and `color`.
+
+#### `Logger.addLogLevel(params: Object)`
+Adds a new log level with specified configurations.
+
+- `params.level`: The name of the new log level.
+- `params.color`: The color used for console output.
+- `params.includeTimestamp`: Whether to include timestamps in the logs.
+- `params.logToFile`: Whether to log messages to a file.
+- `params.logFile`: File name for the logs (optional).
+
+## Future Features
+
+- **Log Rotation**: Automatically rotate log files based on size or time.
+- **Custom Log Levels**: Enhance flexibility with user-defined log configurations.
+- **CLI**: A command-line interface for managing logger configurations and viewing logs.
 
 ## Contributing
 
-Contributions are welcome! If you have ideas for new features or bug fixes, feel free to open an issue or submit a pull request.
+Contributions are welcome! Please submit a pull request or file an issue on the [GitHub repository](https://github.com/Asterki/file-error-logging).
 
 ## License
 
 This project is licensed under the Apache-v2.0 License. See the [LICENSE](./LICENSE) file for details.
 
+---
+
+Happy Logging!
