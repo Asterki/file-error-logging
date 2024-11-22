@@ -1,4 +1,4 @@
-import chalk, { Chalk, Color } from "chalk";
+import chalk, { Color } from "chalk";
 import fsExtra from "fs-extra";
 import path from "path";
 
@@ -8,7 +8,8 @@ import path from "path";
 class Logger {
   private static instance: Logger;
   private logsDir: string;
-  private chalkInstance: Chalk;
+  private rotation: "daily" | "monthly" | "yearly" = "daily";
+  private development: boolean = false; // This controls whether to log to the console or not
 
   /**
    * Default log levels with their configurations.
@@ -52,16 +53,22 @@ class Logger {
    */
   private constructor() {
     this.logsDir = path.resolve(process.cwd(), "logs"); // Set the default logs directory
-    this.chalkInstance = new chalk.Instance();
     fsExtra.ensureDirSync(this.logsDir);
-    Object.keys(this.levels).forEach((level) => {
-      // @ts-ignore
-      const { logFileName } = this.levels[level];
-      if (logFileName) {
-        fsExtra.ensureFileSync(path.resolve(this.logsDir, logFileName));
-      }
-    });
   }
+
+  /**
+   * Public method to set the configuration for the logger.
+   */
+  public setConfig = (config: {
+    logsDir?: string;
+    rotation?: "daily" | "monthly" | "yearly";
+    development?: boolean;
+  }) => {
+    this.logsDir = config.logsDir || this.logsDir;
+    this.rotation = config.rotation || this.rotation;
+    this.development = config.development || false;
+    fsExtra.ensureDirSync(this.logsDir);
+  };
 
   /**
    * Private method to format dates
@@ -120,10 +127,45 @@ class Logger {
       defaultLogToFile: logToFile,
       logFileName: logFileName,
     };
+  };
 
-    // Create the log file if it doesn't exist
-    if (logFileName) {
-      fsExtra.ensureFileSync(path.resolve(this.logsDir, logFileName));
+  /**
+   * Private method to log to file given the rotation.
+   */
+  private logToFile = (level: string, message: string) => {
+    const now = new Date();
+
+    if (this.rotation === "daily") {
+      // Create folders for year, month and day
+      const yearDir = path.resolve(this.logsDir, now.getFullYear().toString());
+      fsExtra.ensureDirSync(yearDir);
+      const monthDir = path.resolve(yearDir, (now.getMonth() + 1).toString());
+      fsExtra.ensureDirSync(monthDir);
+      const dayDir = path.resolve(monthDir, now.getDate().toString());
+      fsExtra.ensureDirSync(dayDir);
+
+      const logFile = path.resolve(dayDir, `${level}.log`);
+      fsExtra.appendFileSync(logFile, `${message}`); // Date will always be included in the file
+    }
+
+    if (this.rotation === "monthly") {
+      // Create folder for year and month
+      const yearDir = path.resolve(this.logsDir, now.getFullYear().toString());
+      fsExtra.ensureDirSync(yearDir);
+      const monthDir = path.resolve(yearDir, (now.getMonth() + 1).toString());
+      fsExtra.ensureDirSync(monthDir);
+
+      const logFile = path.resolve(monthDir, `${level}.log`);
+      fsExtra.appendFileSync(logFile, `${message}`); // Date will always be included in the file
+    }
+
+    if (this.rotation === "yearly") {
+      // Create folder for year
+      const yearDir = path.resolve(this.logsDir, now.getFullYear().toString());
+      fsExtra.ensureDirSync(yearDir);
+
+      const logFile = path.resolve(yearDir, `${level}.log`);
+      fsExtra.appendFileSync(logFile, `${message}`); // Date will always be included in the file
     }
   };
 
@@ -138,7 +180,7 @@ class Logger {
    */
   public log = (
     level: string,
-    message: string,
+    message: any,
     optionsOverride: {
       includeTimestampInConsole?: boolean;
       logToFile?: boolean;
@@ -156,26 +198,23 @@ class Logger {
       } ${message}`;
 
       // Log to the console
-      console.log(
-        // @ts-ignore
-        `[${chalk[options.color || levelOptions.color](
-          level.toUpperCase()
-        )}] - ${logMessage}`
-      );
+      if (this.development) {
+        console.log(
+          // @ts-ignore
+          `[${chalk[options.color || levelOptions.color](
+            level.toUpperCase()
+          )}] - ${logMessage}`
+        );
+      }
 
       // Log to the file
       if (options.logToFile || levelOptions.defaultLogToFile) {
-        const logFile = path.resolve(this.logsDir, options.logFileName || "");
-        fsExtra.appendFileSync(
-          logFile,
-          `${now.toISOString()} - ${message} \n`
-        ); // Date will always be included in the file
+        this.logToFile(level, `${this.formatTimestamp(now)} ${message}\n`);
       }
     } catch (error) {
       if (error instanceof TypeError) {
-        console.error(`Log level: "${level}" is not defined.`, error.message);
+        throw new Error(`Log level: "${level}" is not defined.`);
       } else {
-        console.log(error)
         throw error; // Re-throw the error if it's not the expected type
       }
     }
