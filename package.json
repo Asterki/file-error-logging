@@ -25,7 +25,7 @@
   "bugs": {
     "url": "https://github.com/Asterki/file-error-logging/issues"
   },
-  "homepage": "https://github.com/Asterki/file-error-logging#readme",
+  "homepage": "https://asterki.github.io/file-error-logging",
   "devDependencies": {
     "@types/chalk": "^0.4.31",
     "@types/fs-extra": "^11.0.4",
