@@ -4,6 +4,10 @@ A lightweight, flexible logging library for Node.js applications. This library p
 
 Future updates will introduce a **CLI** for easier configuration and use.
 
+Related pages:
+- [Configuration](./configuration.md)
+- [Changelog](./changelog.md)
+
 ## Features
 
 - **Default Log Levels**: `info`, `warn`, `error`, `verb` (verbose).
