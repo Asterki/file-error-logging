@@ -61,8 +61,8 @@ Logger.addLogLevel("debug", {
   includeTimestampInConsole: true,
   logToFile: true,
   logFileName: "debug.log",
-  onTrigger: () => {
-    reportToAPI();
+  onTrigger: (message) => {
+    reportToAPI(message);
   },
 });
 
@@ -96,8 +96,8 @@ Logger.log("info", "This is an info message", {
   color: "whiteBright",
 });
 Logger.log("warn", "This is a warning message", {
-  onTrigger: () => {
-    reportToAPI();
+  onTrigger: (message) => {
+    reportToAPI(message);
   },
 });
 Logger.log("verb", "This is a verbose message");
