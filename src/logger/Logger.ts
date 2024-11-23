@@ -12,7 +12,6 @@ class Logger {
   private logsDir: string;
   private rotation: "daily" | "monthly" | "yearly" = "daily";
   private development: boolean = false;
-  private chalkInstance: Chalk;
 
   private levels: {
     [key in LogLevel]: {
@@ -20,6 +19,7 @@ class Logger {
       includeTimestampInConsole: boolean;
       defaultLogToFile: boolean;
       logFileName?: string;
+      onTrigger?: (message: string) => void;
     };
   } = {
     info: {
@@ -50,7 +50,6 @@ class Logger {
 
   private constructor() {
     this.logsDir = path.resolve(process.cwd(), "logs");
-    this.chalkInstance = new chalk.Instance();
     fsExtra.ensureDirSync(this.logsDir);
   }
 
@@ -73,11 +72,13 @@ class Logger {
       includeTimestampInConsole,
       logToFile,
       logFileName,
+      onTrigger,
     }: {
       color: string;
       includeTimestampInConsole: boolean;
       logToFile: boolean;
       logFileName?: string;
+      onTrigger?: (message: string) => void;
     }
   ): void {
     // @ts-ignore
@@ -90,6 +91,7 @@ class Logger {
       includeTimestampInConsole,
       defaultLogToFile: logToFile,
       logFileName,
+      onTrigger,
     };
 
     if (logFileName) {
@@ -128,6 +130,10 @@ class Logger {
             level.toUpperCase()
           )}] - ${logMessage}`
         );
+      }
+
+      if (options.onTrigger) {
+        options.onTrigger(logMessage);
       }
 
       if (options.logToFile || levelOptions.defaultLogToFile) {
