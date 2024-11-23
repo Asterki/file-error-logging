@@ -106,6 +106,7 @@ class Logger {
       includeTimestampInConsole?: boolean;
       logToFile?: boolean;
       color?: string;
+      onTrigger?: (message: string) => void;
     } = {}
   ): void {
     try {

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.3.0] - 2024-11-22 Added
+- Introduced the `onTrigger` parameter to `Logger.addLogLevel`, which allows for a user-defined function to be called when a message is logged
+- Added `onTrigger` as an item on the `Logger.log` method, accepts a function as parameter.
+
 ## [1.2.2] - 2024-11-22 Added
 - Introduced `Logger.setConfig` method to configure log directory, rotation policy, and development mode.
 - Added `Logger.addLogLevel` method to allow custom log levels with configurable color, timestamping, and file logging rules.

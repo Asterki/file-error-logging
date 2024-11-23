@@ -42,13 +42,16 @@ Logger.setConfig({
 You can add custom log levels with their own color, timestamping, and file logging rules using the `addLogLevel` method.
 
 **`addLogLevel` Parameters**
+
 - `level`: The name of the log level.
 - `color`: The color associated with the log level.
 - `includeTimestampInConsole`: Whether to include a timestamp in the console log.
 - `logToFile`: Whether to log to a file.
 - `logFileName`: The file to log to, if applicable.
+- `onTrigger`: Function to be executed when the log level is called, accepts a function as parameter.
 
 ## Example
+
 ```ts
 import Logger from "file-error-logging";
 
@@ -58,6 +61,9 @@ Logger.addLogLevel("debug", {
   includeTimestampInConsole: true,
   logToFile: true,
   logFileName: "debug.log",
+  onTrigger: () => {
+    reportToAPI();
+  },
 });
 
 // Log a message with the custom log level
@@ -65,17 +71,21 @@ Logger.log("debug", "This is a debug message");
 ```
 
 # Logging Messages
+
 You can log messages at different levels using the `log` method. You can also override the default options for each log message.
 
 **`log` Parameters**
+
 - `level`: The log level to use.
 - `message`: The message to log.
-- `optionsOverride`: Optional overrides for the log options.
-    - `includeTimestampInConsole`: Whether to include a timestamp in the console log.
-    - `logToFile`: Whether to log to a file.
-    - `color`: The color to use for the log message.
+- `optionsOverride`: Optional overrides for the log options, this parameter is optional.
+  - `includeTimestampInConsole`: Whether to include a timestamp in the console log.
+  - `logToFile`: Whether to log to a file.
+  - `color`: The color to use for the log message.
+  - `onTrigger`: Function to be called when the the log level is called, accepts `message` as parameter.
 
 ## Example
+
 ```ts
 import Logger from "file-error-logging";
 
@@ -85,7 +95,11 @@ Logger.log("info", "This is an info message", {
   logToFile: true,
   color: "whiteBright",
 });
-Logger.log("warn", "This is a warning message");
+Logger.log("warn", "This is a warning message", {
+  onTrigger: () => {
+    reportToAPI();
+  },
+});
 Logger.log("verb", "This is a verbose message");
 Logger.log("error", new Error("This is an error message"));
 ```
