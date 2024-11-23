@@ -19,7 +19,7 @@ export const logToFile = (
     fsExtra.ensureDirSync(dayDir);
 
     const logFile = path.resolve(dayDir, `${level}.log`);
-    fsExtra.appendFileSync(logFile, `${message}`);
+    fsExtra.appendFileSync(logFile, `${message}\n`);
   }
 
   if (rotation === "monthly") {
@@ -29,7 +29,7 @@ export const logToFile = (
     fsExtra.ensureDirSync(monthDir);
 
     const logFile = path.resolve(monthDir, `${level}.log`);
-    fsExtra.appendFileSync(logFile, `${message}`);
+    fsExtra.appendFileSync(logFile, `${message}\n`);
   }
 
   if (rotation === "yearly") {
@@ -37,6 +37,6 @@ export const logToFile = (
     fsExtra.ensureDirSync(yearDir);
 
     const logFile = path.resolve(yearDir, `${level}.log`);
-    fsExtra.appendFileSync(logFile, `${message}`);
+    fsExtra.appendFileSync(logFile, `${message}\n`);
   }
 };

@@ -1,5 +1,5 @@
 // src/logger/Logger.ts
-import chalk, { Chalk } from "chalk";
+import chalk from "chalk";
 import fsExtra from "fs-extra";
 import path from "path";
 import { LogLevel } from "./LogLevel";
@@ -82,8 +82,10 @@ class Logger {
     }
   ): void {
     // @ts-ignore
-    if (this.levels[name])
-      throw new Error(`Log level: "${name}" already exists.`);
+    if (this.levels[name]) {
+      // @ts-ignore If the developer wants to override an existing log level, they can do so
+      delete this.levels[name];
+    }
 
     // @ts-ignore
     this.levels[name] = {
@@ -147,39 +149,6 @@ class Logger {
         throw error;
       }
     }
-  }
-
-  public info(
-    message: string,
-    optionsOverride: {
-      includeTimestampInConsole?: boolean;
-      logToFile?: boolean;
-      color?: string;
-    } = {}
-  ): void {
-    this.log("info", message, optionsOverride);
-  }
-
-  public warn(
-    message: string,
-    optionsOverride: {
-      includeTimestampInConsole?: boolean;
-      logToFile?: boolean;
-      color?: string;
-    } = {}
-  ): void {
-    this.log("warn", message, optionsOverride);
-  }
-
-  public error(
-    message: string,
-    optionsOverride: {
-      includeTimestampInConsole?: boolean;
-      logToFile?: boolean;
-      color?: string;
-    } = {}
-  ): void {
-    this.log("error", message, optionsOverride);
   }
 }
 
