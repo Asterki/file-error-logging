@@ -1,0 +1,16 @@
+# Exclude source files
+src/
+# Exclude node_modules
+node_modules/
+# Exclude test files
+test/
+# Exclude configuration files
+tsconfig.json
+# Exclude build scripts
+Gruntfile.js
+# Exclude other unnecessary files
+.git
+.gitignore
+.npmignore
+.vscode
+*.log

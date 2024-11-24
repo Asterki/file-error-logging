@@ -4,13 +4,13 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": false,
-    "module": "commonjs",
+    "module": "esnext",
     "target": "es6",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node" // Add this line
+    "moduleResolution": "node"
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

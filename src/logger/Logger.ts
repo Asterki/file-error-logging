@@ -141,6 +141,7 @@ class Logger {
 
       if (options.logToFile || levelOptions.defaultLogToFile) {
         logToFile(this.logsDir, this.rotation, level, logMessage);
+        // TODO Log to database
       }
     } catch (error) {
       if (error instanceof TypeError) {
