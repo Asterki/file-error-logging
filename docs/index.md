@@ -30,7 +30,7 @@ npm install file-error-logging
 ### Basic Example
 
 ```typescript
-import Logger from "file-error-logging";
+import Logger from "file-error-logging/dist/cjs";
 
 // Configure the logger
 Logger.setConfig({

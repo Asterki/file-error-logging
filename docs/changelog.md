@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.3]
+- Support for ESM and CJS
+
+## [1.3.2]
+- General fixes
+
+## [1.3.1]
+- General fixes
+
 ## [1.3.0] - 2024-11-22 Added
 - Introduced the `onTrigger` parameter to `Logger.addLogLevel`, which allows for a user-defined function to be called when a message is logged
 - Added `onTrigger` as an item on the `Logger.log` method, accepts a function as parameter.
