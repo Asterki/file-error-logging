@@ -53,7 +53,7 @@ You can add custom log levels with their own color, timestamping, and file loggi
 ## Example
 
 ```ts
-import Logger from "file-error-logging";
+import Logger from "file-error-logging/dist/cjs";
 
 // Add a new custom log level
 Logger.addLogLevel("debug", {
